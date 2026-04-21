@@ -15,5 +15,5 @@ public class CommentCreateRequest {
     @NotBlank
     private String content;
     
-    private Long parentCommentId; // null means direct reply to post
+    private Long parentCommentId;
 }

@@ -31,15 +31,13 @@ public class CommentService {
     public Comment addComment(Long postId, CommentCreateRequest request) {
         Post post = postRepository.findById(postId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
-        
-        // Determine depth
+
         Integer depth;
         Long parentCommentId = request.getParentCommentId();
         Long humanTargetId = null;
         
         if (parentCommentId == null) {
             depth = 1;
-            // Target human for notification: post author if user
             if (post.getUserAuthorId() != null) {
                 humanTargetId = post.getUserAuthorId();
             }
@@ -47,13 +45,11 @@ public class CommentService {
             Comment parent = commentRepository.findById(parentCommentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Parent comment not found"));
             depth = parent.getDepthLevel() + 1;
-            // Target human: author of parent comment if user
             if (parent.getUserAuthorId() != null) {
                 humanTargetId = parent.getUserAuthorId();
             }
         }
-        
-        // If author is Bot, apply guardrails
+
         Long botId = null;
         Long userId = null;
         boolean isBot = request.getAuthorType() == AuthorType.BOT;
@@ -62,32 +58,26 @@ public class CommentService {
             botId = request.getAuthorId();
             botRepository.findById(botId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bot not found"));
-            
-            // 1. Horizontal cap (atomic)
+
             guardrailService.checkHorizontalCapAtomic(postId);
-            
-            // 2. Vertical cap
+
             guardrailService.checkVerticalCap(parentCommentId);
-            
-            // 3. Cooldown: need humanId from post author (if user) or parent comment author
+
             Long cooldownHumanId = (post.getUserAuthorId() != null) ? post.getUserAuthorId() : 
                                     (parentCommentId != null ? 
                                      commentRepository.findById(parentCommentId).map(c -> c.getUserAuthorId()).orElse(null) : null);
             if (cooldownHumanId != null) {
                 guardrailService.checkBotHumanCooldown(botId, cooldownHumanId);
             }
-            
-            // Increment virality score for bot reply (+1)
+
             redisViralityService.incrementViralityScore(postId, 1);
         } else {
             userId = request.getAuthorId();
             userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not found"));
-            // Human comment: +50 points
             redisViralityService.incrementViralityScore(postId, 50);
         }
         
-        // Create comment
         Comment comment = new Comment();
         comment.setPostId(postId);
         comment.setParentCommentId(parentCommentId);
@@ -97,8 +87,7 @@ public class CommentService {
         comment.setBotAuthorId(isBot ? botId : null);
         
         Comment saved = commentRepository.save(comment);
-        
-        // After successful save, send notification if bot replied to a human
+
         if (isBot && humanTargetId != null) {
             String context = (parentCommentId == null) ? "post" : "comment";
             notificationService.notifyHumanIfNeeded(humanTargetId, botId, context);

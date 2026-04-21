@@ -17,10 +17,8 @@ public class BotService {
 
     private final BotRepository botRepository;
 
-    // Create User
     public Bot createBot(Bot bot) {
 
-        // Check duplicate username
         botRepository.findByName(bot.getName())
                 .ifPresent(u -> {
                     throw new ResponseStatusException(

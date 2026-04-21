@@ -21,10 +21,7 @@ public class GuardrailService {
     private static final int MAX_DEPTH = 20;
     private static final long COOLDOWN_SECONDS = 10 * 60; // 10 minutes
 
-    /**
-     * Atomic horizontal cap check using Lua script.
-     * This is the only method used for bot reply limit.
-     */
+
     public void checkHorizontalCapAtomic(Long postId) {
         boolean allowed = redisViralityService.tryIncrementBotCount(postId, MAX_BOT_REPLIES);
         if (!allowed) {

@@ -16,7 +16,6 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    // Create User
     public User createUser(User user) {
 
         // Check duplicate username
@@ -31,19 +30,16 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    // Get user by ID
     public User getUser(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() ->
                         new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
     }
 
-    // Get all users
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
-    // Delete user
     public void deleteUser(Long id) {
         if (!userRepository.existsById(id)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");

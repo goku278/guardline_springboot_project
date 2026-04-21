@@ -25,7 +25,7 @@ public class NotificationSweeper {
             Long userId = Long.valueOf(userIdStr);
             List<String> messages = redisViralityService.popAllPendingNotifications(userId);
             if (messages != null && !messages.isEmpty()) {
-                // Extract first bot name and count of others
+
                 String firstBot = extractFirstBotName(messages);
                 int othersCount = messages.size() - 1;
                 if (othersCount > 0) {
@@ -38,10 +38,10 @@ public class NotificationSweeper {
     }
     
     private String extractFirstBotName(List<String> messages) {
-        // messages format: "Bot X replied to your post/comment"
+
         if (messages.isEmpty()) return "Unknown";
         String first = messages.get(0);
-        // Extract between "Bot " and " replied"
+
         int start = first.indexOf("Bot ") + 4;
         int end = first.indexOf(" replied", start);
         if (end > start) {

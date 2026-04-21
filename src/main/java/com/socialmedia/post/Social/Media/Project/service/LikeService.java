@@ -21,8 +21,7 @@ public class LikeService {
         }
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not found"));
-        
-        // Human like = +20 points
+
         redisViralityService.incrementViralityScore(postId, 20);
     }
 }

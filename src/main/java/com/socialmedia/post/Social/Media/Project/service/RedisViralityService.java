@@ -30,11 +30,6 @@ public class RedisViralityService {
         return redisTemplate.opsForValue().increment(key);
     }
 
-    /**
-     * Atomic increment only if current count < maxAllowed.
-     * Uses Lua script to guarantee thread safety.
-     * @return true if incremented, false if limit reached
-     */
 
     public boolean tryIncrementBotCount(Long postId, int maxAllowed) {
         String key = BOT_COUNT_KEY_PREFIX + postId;

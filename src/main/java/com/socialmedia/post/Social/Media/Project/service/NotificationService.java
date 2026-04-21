@@ -17,8 +17,7 @@ public class NotificationService {
     
     public void notifyHumanIfNeeded(Long humanId, Long botId, String contextMessage) {
         if (humanId == null) return;
-        
-        // Check if user exists
+
         userRepository.findById(humanId).orElse(null);
         
         String botName = botRepository.findById(botId).map(Bot::getName).orElse("Unknown Bot");
