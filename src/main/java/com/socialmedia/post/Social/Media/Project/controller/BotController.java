@@ -18,6 +18,7 @@ public class BotController {
     private final BotService botService;
 
 
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Bot createUser(@RequestBody Bot bot) {
