@@ -1,0 +1,33 @@
+spring:
+  profiles:
+    active: local  # default to local
+
+---
+# Local profile (default)
+spring:
+  config:
+    activate:
+      on-profile: local
+  datasource:
+    url: jdbc:postgresql://localhost:5432/guardrail_db
+    username: postgres
+    password: postgres
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+---
+# Docker profile
+spring:
+  config:
+    activate:
+      on-profile: docker
+  datasource:
+    url: jdbc:postgresql://postgres:5432/guardrail_db
+    username: postgres
+    password: postgres
+  data:
+    redis:
+      host: redis
+      port: 6379
